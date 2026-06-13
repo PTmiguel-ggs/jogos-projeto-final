@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>UGS Files - Aurora Edition</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --panel-bg: rgba(30, 30, 35, 0.7);
+            --accent-blue: #94a3b8;
+            --accent-purple: #64748b;
+            --accent-pink: #e2e8f0;
+            --accent-green: #cbd5e1;
+            --text-main: #f8fafc;
+            --text-muted: #a1a1aa;
+            --border-light: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at top left, #3f3f46 0%, var(--bg-color) 70%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(161, 161, 170, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-purple); }
+
+        .main-container {
+            width: 100%;
+            max-width: 1450px;
+            padding: 40px 30px;
+            display: grid;
+            grid-template-columns: 440px 1fr;
+            gap: 40px;
+        }
+
+        .clicker-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .clicker-title {
+            font-size: 26px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .stats-container {
+            background: rgba(10, 10, 10, 0.5);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        .main-score {
+            font-size: 46px;
+            font-weight: 800;
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 15px;
+            word-wrap: break-word;
+            letter-spacing: -1px;
+        }
+
+        .sub-stat {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-align: center;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .sub-stat span { font-weight: 600; color: var(--text-main); }
+
+        @keyframes breathe {
+            0% { transform: scale(1); box-shadow: 0 10px 25px rgba(161, 161, 170, 0.2); }
+            50% { transform: scale(1.02); box-shadow: 0 15px 35px rgba(161, 161, 170, 0.4); }
+            100% { transform: scale(1); box-shadow: 0 10px 25px rgba(161, 161, 170, 0.2); }
+        }
+
+        .click-master-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue), var(--accent-pink));
+            background-size: 200% 200%;
+            color: #121214;
+            border: none;
+            padding: 22px;
+            font-size: 20px;
+            font-weight: 800;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 25px;
+            animation: breathe 4s infinite ease-in-out;
+            letter-spacing: 1px;
+        }
+
+        .click-master-btn:active { 
+            transform: scale(0.96); 
+            animation: none;
+        }
+
+        .upgrades-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .upgrades-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .upgrade-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(161, 161, 170, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .upgrade-info { display: flex; flex-direction: column; }
+        .upgrade-name { font-weight: 600; font-size: 15px; color: #fff; }
+        .upgrade-desc { font-size: 13px; color: var(--text-muted); margin-top: 5px; }
+        .upgrade-count { font-size: 13px; color: var(--accent-blue); font-weight: 700; margin-left: 6px;}
+
+        .buy-button {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+
+        .buy-button:hover:not(:disabled) { 
+            background: var(--text-main); 
+            color: var(--bg-color); 
+        }
+        
+        .buy-button:disabled { 
+            opacity: 0.3; 
+            cursor: not-allowed; 
+        }
+
+        .secret-admin-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .secret-admin-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .ugs-window {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 80px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .window-header {
+            background: rgba(10, 10, 10, 0.6);
+            padding: 18px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .window-dots { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #52525b; }
+        .dot.yellow { background: #71717a; }
+        .dot.green { background: #a1a1aa; }
+        
+        .window-title { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+
+        .window-content {
+            padding: 40px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .safe-banner {
+            background: rgba(161, 161, 170, 0.1);
+            border: 1px solid rgba(161, 161, 170, 0.2);
+            color: var(--accent-green);
+            padding: 18px;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 15px;
+            margin-bottom: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        h1 { 
+            text-align: center; 
+            margin-top: 0; 
+            font-size: 38px; 
+            font-weight: 800;
+            color: #fff; 
+            margin-bottom: 15px;
+        }
+
+        p.desc-text {
+            text-align: center; 
+            color: var(--text-muted); 
+            margin-bottom: 35px; 
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .ugs-link { 
+            color: var(--accent-blue); 
+            text-decoration: none; 
+            font-weight: 600; 
+            transition: 0.2s; 
+        }
+        
+        .ugs-link:hover { color: var(--accent-pink); }
+
+        #searchInput {
+            padding: 18px 25px;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            background: rgba(10, 10, 10, 0.4);
+            color: white;
+            margin: 0 auto 30px auto;
+            display: block;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus { 
+            outline: none; 
+            border-color: var(--accent-blue); 
+            background: rgba(10, 10, 10, 0.6);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+        }
+
+        #lolbutton {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 0 auto 40px auto;
+            display: block;
+            transition: 0.3s ease;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        #lolbutton:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .buttons-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            padding: 10px 0;
+        }
+
+        .letter-header {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 40px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-main);
+        }
+
+        input[type="button"] {
+            background: rgba(10, 10, 10, 0.5);
+            border: 1px solid var(--border-light);
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 14px;
+            cursor: pointer;
+            color: var(--text-muted);
+            text-align: center;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        input[type="button"]:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1100px) {
+            .main-container { grid-template-columns: 1fr; }
+            .clicker-panel, .ugs-window { height: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <div class="clicker-panel">
+            <div class="clicker-title">Evolução Digital</div>
+            
+            <div class="stats-container">
+                <div class="main-score"><span id="pts">0</span></div>
+                <div class="sub-stat">Rendimento Mágico: <span id="pps">0 /s</span></div>
+                <div class="sub-stat">Força de Impacto: <span id="pck">1</span></div>
+                <div class="sub-stat" style="color:var(--accent-pink);">Prob. Crítico (Dano x5): <span style="color:var(--accent-pink);">10%</span></div>
+                <div class="sub-stat" style="margin-top:15px; border-top: 1px solid var(--border-light); padding-top: 15px;">
+                    Tempo Ativo: <span id="timer">00:00</span>
+                </div>
+            </div>
+
+            <button class="click-master-btn" id="master-click-btn">GERAR ENERGIA</button>
+
+            <div class="upgrades-wrapper">
+                <div class="upgrades-list">
+                    
+                    <div class="upgrade-card">
+                        <div class="upgrade-info">
+                            <span class="upgrade-name">Otimização Manual</span>
+                            <span class="upgrade-desc">+1 Ponto por Clique Base</span>
+                        </div>
+                        <button class="buy-button" id="up-click" onclick="buyUpgrade('click')">50</button>
+                    </div>
+
+                    <div class="upgrade-card">
+                        <div class="upgrade-info">
+                            <span class="upgrade-name">Rotina Simples <span class="upgrade-count" id="num-w1">0</span></span>
+                            <span class="upgrade-desc">+1 Ponto/segundo</span>
+                        </div>
+                        <button class="buy-button" id="up-w1" onclick="buyUpgrade('w1')">25</button>
+                    </div>
+
+                    <div class="upgrade-card">
+                        <div class="upgrade-info">
+                            <span class="upgrade-name">Macro Avançado <span class="upgrade-count" id="num-w2">0</span></span>
+                            <span class="upgrade-desc">+10 Pontos/segundo</span>
+                        </div>
+                        <button class="buy-button" id="up-w2" onclick="buyUpgrade('w2')">200</button>
+                    </div>
+
+                    <div class="upgrade-card">
+                        <div class="upgrade-info">
+                            <span class="upgrade-name">Cluster de Dados <span class="upgrade-count" id="num-w3">0</span></span>
+                            <span class="upgrade-desc">+50 Pontos/segundo</span>
+                        </div>
+                        <button class="buy-button" id="up-w3" onclick="buyUpgrade('w3')">1200</button>
+                    </div>
+
+                    <div class="upgrade-card">
+                        <div class="upgrade-info">
+                            <span class="upgrade-name">Nó Quântico <span class="upgrade-count" id="num-w4">0</span></span>
+                            <span class="upgrade-desc">+250 Pontos/segundo</span>
+                        </div>
+                        <button class="buy-button" id="up-w4" onclick="buyUpgrade('w4')">8500</button>
+                    </div>
+
+                    <div class="upgrade-card">
+                        <div class="upgrade-info">
+                            <span class="upgrade-name">Consciência IA <span class="upgrade-count" id="num-w5">0</span></span>
+                            <span class="upgrade-desc">+1,500 Pontos/segundo</span>
+                        </div>
+                        <button class="buy-button" id="up-w5" onclick="buyUpgrade('w5')">50k</button>
+                    </div>
+
+                    <div class="upgrade-card">
+                        <div class="upgrade-info">
+                            <span class="upgrade-name" style="color: var(--accent-blue);">Matriz Neural <span class="upgrade-count" id="num-w6">0</span></span>
+                            <span class="upgrade-desc">+10,000 Pontos/segundo</span>
+                        </div>
+                        <button class="buy-button" id="up-w6" onclick="buyUpgrade('w6')">500k</button>
+                    </div>
+
+                    <div class="upgrade-card">
+                        <div class="upgrade-info">
+                            <span class="upgrade-name" style="color: var(--accent-pink);">Singularidade <span class="upgrade-count" id="num-w7">0</span></span>
+                            <span class="upgrade-desc">+100,000 Pontos/segundo</span>
+                        </div>
+                        <button class="buy-button" id="up-w7" onclick="buyUpgrade('w7')">10M</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <button class="secret-admin-btn" onclick="openSecretPanel()" title="Terminal"></button>
+        </div>
+
+        <div class="ugs-window">
+            <div class="window-header">
+                <div class="window-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <div class="window-title">Explorador de Arquivos UGS</div>
+                <div style="width: 50px;"></div>
+            </div>
+            
+            <div class="window-content">
+                
+                <div class="safe-banner">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    Podes pesquisar qualquer jogo e entrar sem te preocupares.
+                </div>
+
+                <h1>Catálogo UGS</h1>
+                
+                <p class="desc-text">
+                    Arquivos seguros extraídos do 
+                    <a class="ugs-link" href="https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/" target="_blank">
+                        Ultimate Game Stash Google Doc
+                    </a>
+                    <br>Junta-te à rede na Comunidade Oficial: 
+                    <a class="ugs-link" href="https://discord.gg/rmVsAqkpkA" target="_blank">
+                        Discord Server
+                    </a>
+                </p>
+
+                <input type="text" placeholder="Procurar um título..." id="searchInput">
+                <button id="lolbutton" onclick="const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js'; document.body.appendChild(s);">Forçar Carregamento do Motor</button>
+                
+                <div id="sections-container"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let activeSeconds = 0;
+        setInterval(() => {
+            activeSeconds++;
+            let m = Math.floor(activeSeconds / 60).toString().padStart(2, '0');
+            let s = (activeSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
+        }, 1000);
+
+        let gameState = {
+            points: 0,
+            clickPower: 1,
+            pps: 0,
+            upgrades: {
+                click: { cost: 50, power: 1 },
+                w1: { cost: 25, count: 0, pps: 1 },
+                w2: { cost: 200, count: 0, pps: 10 },
+                w3: { cost: 1200, count: 0, pps: 50 },
+                w4: { cost: 8500, count: 0, pps: 250 },
+                w5: { cost: 50000, count: 0, pps: 1500 },
+                w6: { cost: 500000, count: 0, pps: 10000 },
+                w7: { cost: 10000000, count: 0, pps: 100000 }
+            }
+        };
+
+        const uiPts = document.getElementById('pts');
+        const uiPps = document.getElementById('pps');
+        const uiPck = document.getElementById('pck');
+
+        function formatNumber(num) {
+            if(num >= 1000000000000) return (num / 1000000000000).toFixed(2) + "T";
+            if(num >= 1000000000) return (num / 1000000000).toFixed(2) + "B";
+            if(num >= 1000000) return (num / 1000000).toFixed(2) + "M";
+            if(num >= 10000) return (num / 1000).toFixed(1) + "k";
+            return Math.floor(num).toString();
+        }
+
+        function recalcPPS() {
+            gameState.pps = 
+                (gameState.upgrades.w1.count * gameState.upgrades.w1.pps) +
+                (gameState.upgrades.w2.count * gameState.upgrades.w2.pps) +
+                (gameState.upgrades.w3.count * gameState.upgrades.w3.pps) +
+                (gameState.upgrades.w4.count * gameState.upgrades.w4.pps) +
+                (gameState.upgrades.w5.count * gameState.upgrades.w5.pps) +
+                (gameState.upgrades.w6.count * gameState.upgrades.w6.pps) +
+                (gameState.upgrades.w7.count * gameState.upgrades.w7.pps);
+        }
+
+        function updateClickerUI() {
+            uiPts.innerText = formatNumber(gameState.points);
+            uiPps.innerText = formatNumber(gameState.pps) + " /s";
+            uiPck.innerText = formatNumber(gameState.clickPower);
+
+            for (let key in gameState.upgrades) {
+                let up = gameState.upgrades[key];
+                let btn = document.getElementById(`up-${key}`);
+                btn.innerText = formatNumber(up.cost);
+                btn.disabled = gameState.points < up.cost;
+                
+                if(key !== 'click') {
+                    document.getElementById(`num-${key}`).innerText = "x" + up.count;
+                }
+            }
+        }
+
+        document.getElementById('master-click-btn').addEventListener('click', (e) => {
+            let isCrit = Math.random() < 0.1;
+            let clickValue = isCrit ? gameState.clickPower * 5 : gameState.clickPower;
+            
+            gameState.points += clickValue;
+            
+            let ripple = document.createElement("div");
+            ripple.style.position = "absolute";
+            ripple.style.color = isCrit ? "var(--accent-pink)" : "var(--text-main)";
+            ripple.style.fontWeight = "bold";
+            ripple.style.fontSize = isCrit ? "22px" : "15px";
+            ripple.style.left = (e.clientX - 10) + "px";
+            ripple.style.top = (e.clientY - 20) + "px";
+            ripple.style.pointerEvents = "none";
+            ripple.style.transition = "all 0.8s cubic-bezier(0.1, 0.8, 0.2, 1)";
+            ripple.innerText = (isCrit ? "Crítico! +" : "+") + formatNumber(clickValue);
+            ripple.style.zIndex = "9999";
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.style.transform = "translateY(-40px) scale(1.1)";
+                ripple.style.opacity = "0";
+            }, 10);
+            setTimeout(() => ripple.remove(), 800);
+
+            updateClickerUI();
+        });
+
+        function buyUpgrade(type) {
+            let up = gameState.upgrades[type];
+            if (gameState.points >= up.cost) {
+                gameState.points -= up.cost;
+                
+                if (type === 'click') {
+                    gameState.clickPower += 1;
+                    up.cost = Math.round(up.cost * 1.6);
+                } else {
+                    up.count += 1;
+                    up.cost = Math.round(up.cost * 1.3);
+                }
+                
+                recalcPPS();
+                updateClickerUI();
+            }
+        }
+
+        setInterval(() => {
+            if (gameState.pps > 0) {
+                gameState.points += gameState.pps;
+                updateClickerUI();
+            }
+        }, 1000);
+
+        updateClickerUI();
+
+        function openSecretPanel() {
+            let password = prompt("Autenticação Necessária:");
+            
+            if(password === "2122") {
+                let menu = prompt(
+                    "Acesso Verificado. Selecione uma opção (1-4):\n" +
+                    "1 - Definir Saldo Exato\n" +
+                    "2 - Adicionar Saldo\n" +
+                    "3 - Injetar Singularidades (Trabalhador Max)\n" +
+                    "4 - Definir Poder de Clique"
+                );
+
+                if (menu === "1") {
+                    let val = parseFloat(prompt("Novo saldo exato:"));
+                    if (!isNaN(val)) {
+                        gameState.points = val;
+                        alert("Saldo updated para " + formatNumber(val));
+                    }
+                } 
+                else if (menu === "2") {
+                    let val = parseFloat(prompt("Quantidade a adicionar:"));
+                    if (!isNaN(val)) {
+                        gameState.points += val;
+                        alert("Adicionado " + formatNumber(val) + " ao saldo.");
+                    }
+                }
+                else if (menu === "3") {
+                    let val = parseInt(prompt("Quantidade de Singularidades a ativar:"));
+                    if (!isNaN(val)) {
+                        gameState.upgrades.w7.count = val;
+                        recalcPPS();
+                        alert("Singularidades definidas para " + val);
+                    }
+                }
+                else if (menu === "4") {
+                    let val = parseFloat(prompt("Novo poder de clique base:"));
+                    if (!isNaN(val)) {
+                        gameState.clickPower = val;
+                        alert("Poder de clique atualizado para " + formatNumber(val));
+                    }
+                }
+                updateClickerUI();
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/games.js"></script>
+</body>
+</html>
