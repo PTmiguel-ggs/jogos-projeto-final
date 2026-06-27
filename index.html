@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Projeto final </title>
+     <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- BOTÕES DE IDIOMA -->
+    <div class="lang-buttons">
+        <button class="lang-btn" onclick="setLanguage('pt')" title="Português" aria-label="Português">🇵🇹</button>
+        <button class="lang-btn" onclick="setLanguage('en')" title="English" aria-label="English">🇺🇸</button>
+    </div>
+
+    <!-- PAINEL DE MOEDAS -->
+    <div class="coin-panel" id="coin-panel">
+        <span class="coin-icon">🪙</span>
+        <span id="coin-count">0</span>
+        <button class="shop-btn" id="open-shop-btn" data-i18n="shop_btn">Loja</button>
+    </div>
+
+    <!-- BOTÃO PRINCIPAL DO SCRATCH -->
+    <button class="scratch-main-btn" id="scratch-main-btn" data-i18n="scratch_simple">Scratch Simples</button>
+
+    <!-- MODAL DA LOJA -->
+    <div id="shop-modal" style="display:none;">
+        <div class="shop-modal-overlay">
+            <div class="shop-modal">
+                <button class="close-shop-btn" id="close-shop-modal">✕</button>
+                <h2 data-i18n="shop_title">Loja de Moedas</h2>
+                <div class="shop-item">
+                    <div class="shop-item-info">
+                        <div class="shop-item-name" data-i18n="shop_item_name">Passe Scratch</div>
+                        <div class="shop-item-desc" data-i18n="shop_item_desc">Desbloqueia o editor Scratch para sempre.</div>
+                        <div class="shop-item-price">20 🪙</div>
+                    </div>
+                    <button class="shop-buy-btn" id="buy-scratch-pass" data-i18n="shop_buy">Comprar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SCRATCH -->
+    <div id="scratch-modal" style="display:none;">
+        <div class="scratch-overlay">
+            <div class="scratch-container">
+                <div class="scratch-header">
+                    <h2 data-i18n="scratch_title">Scratch UGS</h2>
+                    <button class="close-btn" id="close-scratch" aria-label="Fechar">✕</button>
+                </div>
+                <div class="scratch-main">
+                    <!-- PALETA COM SECÇÕES -->
+                    <div class="block-palette">
+                        <h3>Blocos</h3>
+                        <details open>
+                            <summary>🏃 Movimento</summary>
+                            <button class="block-btn" data-cmd="move" data-i18n="add_move">Mover 10 passos</button>
+                            <button class="block-btn" data-cmd="turn" data-i18n="add_turn">Girar 15°</button>
+                            <button class="block-btn" data-cmd="goTo" data-i18n="add_goTo">Ir para x y</button>
+                            <button class="block-btn" data-cmd="changeX" data-i18n="add_changeX">Mudar x</button>
+                            <button class="block-btn" data-cmd="changeY" data-i18n="add_changeY">Mudar y</button>
+                        </details>
+                        <details>
+                            <summary>🎨 Aparência</summary>
+                            <button class="block-btn" data-cmd="color" data-i18n="add_color">Mudar cor</button>
+                            <button class="block-btn" data-cmd="setSize" data-i18n="add_setSize">Tamanho %</button>
+                            <button class="block-btn" data-cmd="changeSize" data-i18n="add_changeSize">Mudar tamanho</button>
+                            <button class="block-btn" data-cmd="say" data-i18n="add_say">Dizer texto</button>
+                            <button class="block-btn" data-cmd="stamp" data-i18n="add_stamp">Carimbar</button>
+                        </details>
+                        <details>
+                            <summary>✏️ Caneta</summary>
+                            <button class="block-btn" data-cmd="penDown" data-i18n="add_penDown">Baixar caneta</button>
+                            <button class="block-btn" data-cmd="penUp" data-i18n="add_penUp">Levantar caneta</button>
+                            <button class="block-btn" data-cmd="setPenColor" data-i18n="add_setPenColor">Cor da caneta</button>
+                            <button class="block-btn" data-cmd="clear" data-i18n="add_clear">Limpar tudo</button>
+                        </details>
+                        <details>
+                            <summary>🔊 Som</summary>
+                            <button class="block-btn" data-cmd="sound" data-i18n="add_sound">Tocar som</button>
+                        </details>
+                        <details>
+                            <summary>⏳ Controlo</summary>
+                            <button class="block-btn" data-cmd="wait" data-i18n="add_wait">Esperar 1s</button>
+                            <button class="block-btn" data-cmd="repeat" data-i18n="add_repeat">Repetir N vezes</button>
+                        </details>
+                    </div>
+
+                    <!-- SCRIPT -->
+                    <div class="script-panel">
+                        <h3>Script</h3>
+                        <div id="script-list" class="script-list"></div>
+                        <button class="action-btn secondary" id="clear-script" data-i18n="clear_script">Limpar</button>
+                    </div>
+
+                    <!-- PALCO -->
+                    <div class="stage-panel">
+                        <h3>Palco</h3>
+                        <canvas id="scratch-canvas" width="360" height="360"></canvas>
+                        <div class="pen-indicator">
+                            Caneta: <span class="pen-dot" id="pen-dot"></span>
+                            <span id="pen-state-text">Levantada</span>
+                        </div>
+                        <button class="action-btn" id="run-script" data-i18n="run_script">Executar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-container">
+        <!-- UGS FILES -->
+        <div class="ugs-window">
+            <div class="window-header">
+                <div class="window-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+                <div class="window-title" data-i18n="window_title">Explorador de Arquivos UGS</div>
+                <div></div>
+            </div>
+            <div class="window-content">
+                <p class="instruction-text" data-i18n="instruction">
+                    🎮 É só pesquisar o jogo (ex: subway surfers) e clicar em qualquer resultado para jogar.
+                </p>
+                <input type="text" data-i18n-placeholder="search_placeholder" placeholder="Procurar um título..." id="searchInput" aria-label="Procurar jogos">
+                <div id="sections-container"></div>
+            </div>
+        </div>
+
+        <!-- CLICKER -->
+        <div class="clicker-panel">
+            <div class="clicker-title" data-i18n="clicker_title">🍪 Fábrica de Biscoitos</div>
+            <div class="stats-container">
+                <div class="main-score"><span id="pts">0</span> <span data-i18n="cookies">biscoitos</span></div>
+                <div class="sub-stat"><span data-i18n="cps">Biscoitos por segundo</span>: <span id="pps">0 /s</span></div>
+                <div class="sub-stat"><span data-i18n="click_power">Poder do Clique</span>: <span id="pck">1</span></div>
+                <div class="sub-stat" style="color:var(--accent-pink);"><span data-i18n="golden_prob">Probabilidade de Biscoito Dourado (x5)</span>: <span style="color:var(--accent-pink);">10%</span></div>
+                <div class="sub-stat" style="margin-top:15px;border-top:1px solid var(--border-light);padding-top:15px;"><span data-i18n="play_time">Tempo de Jogo</span>: <span id="timer">00:00</span></div>
+            </div>
+            <button class="click-master-btn" id="master-click-btn" data-i18n="click_btn">🍪 Clica e ganha 1 cookie</button>
+            <div class="upgrades-wrapper">
+                <div class="upgrades-list">
+                    <div class="upgrade-card"><div class="upgrade-info"><span class="upgrade-name" data-i18n="up_click_name">Biscoito Reforçado</span><span class="upgrade-desc" data-i18n="up_click_desc">+1 cookie por clique</span></div><button class="buy-button" id="up-click" onclick="buyUpgrade('click')">50</button></div>
+                    <div class="upgrade-card"><div class="upgrade-info"><span class="upgrade-name"><span data-i18n="up_w1_name">Cursor</span> <span class="upgrade-count" id="num-w1">0</span></span><span class="upgrade-desc" data-i18n="up_w1_desc">Produz 0,5 cookies por segundo</span></div><button class="buy-button" id="up-w1" onclick="buyUpgrade('w1')">15</button></div>
+                    <div class="upgrade-card"><div class="upgrade-info"><span class="upgrade-name"><span data-i18n="up_w2_name">Avó</span> <span class="upgrade-count" id="num-w2">0</span></span><span class="upgrade-desc" data-i18n="up_w2_desc">Produz 2 cookies por segundo</span></div><button class="buy-button" id="up-w2" onclick="buyUpgrade('w2')">100</button></div>
+                    <div class="upgrade-card"><div class="upgrade-info"><span class="upgrade-name"><span data-i18n="up_w3_name">Quinta</span> <span class="upgrade-count" id="num-w3">0</span></span><span class="upgrade-desc" data-i18n="up_w3_desc">Produz 8 cookies por segundo</span></div><button class="buy-button" id="up-w3" onclick="buyUpgrade('w3')">500</button></div>
+                    <div class="upgrade-card"><div class="upgrade-info"><span class="upgrade-name"><span data-i18n="up_w4_name">Mina</span> <span class="upgrade-count" id="num-w4">0</span></span><span class="upgrade-desc" data-i18n="up_w4_desc">Produz 20 cookies por segundo</span></div><button class="buy-button" id="up-w4" onclick="buyUpgrade('w4')">2.000</button></div>
+                    <div class="upgrade-card"><div class="upgrade-info"><span class="upgrade-name"><span data-i18n="up_w5_name">Fábrica</span> <span class="upgrade-count" id="num-w5">0</span></span><span class="upgrade-desc" data-i18n="up_w5_desc">Produz 100 cookies por segundo</span></div><button class="buy-button" id="up-w5" onclick="buyUpgrade('w5')">7.000</button></div>
+                    <div class="upgrade-card"><div class="upgrade-info"><span class="upgrade-name" style="color:var(--accent-blue);"><span data-i18n="up_w6_name">Banco</span> <span class="upgrade-count" id="num-w6">0</span></span><span class="upgrade-desc" data-i18n="up_w6_desc">Produz 500 cookies por segundo</span></div><button class="buy-button" id="up-w6" onclick="buyUpgrade('w6')">50.000</button></div>
+                    <div class="upgrade-card"><div class="upgrade-info"><span class="upgrade-name" style="color:var(--accent-pink);"><span data-i18n="up_w7_name">Templo</span> <span class="upgrade-count" id="num-w7">0</span></span><span class="upgrade-desc" data-i18n="up_w7_desc">Produz 2.000 cookies por segundo</span></div><button class="buy-button" id="up-w7" onclick="buyUpgrade('w7')">200.000</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/games.js"></script>
+ <script src="script.js"></script>
+
+</body>
+</html>
